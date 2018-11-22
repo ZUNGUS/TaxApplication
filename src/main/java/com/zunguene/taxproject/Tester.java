@@ -18,10 +18,10 @@ public class Tester
         double earning = 360000;
 
         // double rebate = calculateRebateTax(age);
-        double rebate = TaxCalculator2017.calculateRebateTax(age);
+        double rebate = TaxCalculator2018.calculateRebateTax(age);
         //  double totalEarning = calculateTotalEarnings(salaryType, earning);
-        double totalEarning = TaxCalculator2017.calculateTotalEarnings(salaryType, earning);
-        double totalTax = TaxCalculator2017.taxPayable(rebate, earning);
+        double totalEarning = TaxCalculator2018.calculateTotalEarnings(salaryType, earning);
+        double totalTax = TaxCalculator2018.taxPayable(rebate, earning);
         System.out.println(totalTax);
     }
 }

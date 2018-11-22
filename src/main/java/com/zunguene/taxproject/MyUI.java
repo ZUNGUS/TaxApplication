@@ -16,6 +16,7 @@ import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
 import java.util.ArrayList;
+import javafx.beans.property.ObjectProperty;
 import javafx.scene.control.RadioButton;
 
 /**
@@ -26,7 +27,7 @@ import javafx.scene.control.RadioButton;
  * The UI is initialized using {@link #init(VaadinRequest)}. This method is
  * intended to be overridden to add component to the user interface and
  * initialize non-component functionality.
- * 
+ *
  * author lucky zunguene
  */
 @Theme("mytheme")
@@ -44,6 +45,8 @@ public class MyUI extends UI
     TextField txtAmount, txtMembers;
     Button btnCalculate;
 
+    int depandents = 0;
+
     @Override
     protected void init(VaadinRequest vaadinRequest)
     {
@@ -52,7 +55,6 @@ public class MyUI extends UI
         display = new VerticalLayout();
         // display.setSizeFull();
         groupLayout = new HorizontalLayout();
-       
 
         //initialise  screen components
         grpTaxYear = new RadioButtonGroup("Select tax year");
@@ -69,11 +71,9 @@ public class MyUI extends UI
 
         txtAmount = new TextField("Taxable Earnings");
         txtMembers = new TextField("Number of depandents");
-
+        txtMembers.setEnabled(false);
         btnCalculate = new Button("Results");
-          
-      
-        
+
         display.addComponent(lblHeading);
         display.addComponent(txtAmount);
         groupLayout.addComponent(grpTaxYear);
@@ -83,9 +83,7 @@ public class MyUI extends UI
         display.addComponent(grpMedicalAid);
         display.addComponent(txtMembers);
         display.addComponent(btnCalculate);
-      
-        
-        
+
         display.setComponentAlignment(lblHeading, Alignment.MIDDLE_CENTER);
         display.setComponentAlignment(txtAmount, Alignment.MIDDLE_CENTER);
         display.setComponentAlignment(txtMembers, Alignment.MIDDLE_CENTER);
@@ -93,8 +91,58 @@ public class MyUI extends UI
         display.setComponentAlignment(groupLayout, Alignment.MIDDLE_CENTER);
         display.setComponentAlignment(grpMedicalAid, Alignment.MIDDLE_CENTER);
 
+        btnCalculate.addClickListener(e ->
+        {
+
+            //enter earning amount 
+            double earning = Double.parseDouble(txtAmount.getValue());
+
+            //get tax type annual or monthly
+            String taxType = TaxCalculator2017.getTaxType(grpTaxType.getSelectedItem().get());
+
+            ///earning converted to annual
+            double totalEarnings = TaxCalculator2017.calculateTotalEarnings(taxType, earning);
+
+            //get tax year
+            String taxYear = grpTaxYear.getSelectedItem().get();
+
+            if (taxYear.equalsIgnoreCase("2017"))
+            {
+
+                double monthlyPaye, annualPaye, taxCradit, payAfterTax, netCashAfterPayee;
+                
+                
+                
+
+                //get age group
+                int age = TaxCalculator2017.getAgeGroup(grpAgeGroup.getSelectedItem().get());
+
+                //calculate rebate 
+                double rebate = TaxCalculator2017.calculateRebateTax(age);
+
+                //calculate payable tax monthly
+                double totalTax = TaxCalculator2017.taxPayable(rebate, totalEarnings);
+                txtMembers.setValue("" + totalTax);
+
+            } else if (taxYear.equalsIgnoreCase("2018"))
+            {
+
+                //get age group
+                int age = TaxCalculator2018.getAgeGroup(grpAgeGroup.getSelectedItem().get());
+
+                //calculate rebate 
+                double rebate = TaxCalculator2018.calculateRebateTax(age);
+
+                //calculate payable tax monthly
+                double totalTax = TaxCalculator2018.taxPayable(rebate, totalEarnings);
+                txtMembers.setValue("" + totalTax);
+
+            }
+        });
+
         setContent(display);
 
+//      
     }
 
     @WebServlet(urlPatterns = "/*", name = "MyUIServlet", asyncSupported = true)
@@ -104,4 +152,21 @@ public class MyUI extends UI
 
     }
 
+//    public static String getMadicalDetails(String medTtype)
+//    {
+//
+//        String med = "";
+//
+//        if (medTtype.equalsIgnoreCase("main"))
+//        {
+//            med = "main";
+//
+//        } else if (medTtype.equalsIgnoreCase("Main + dependents"))
+//        {
+//            med = "Main + dependents";
+//
+//        }
+//
+//        return med;
+//    }
 }
