@@ -12,6 +12,7 @@ import com.vaadin.ui.FormLayout;
 import com.vaadin.ui.HorizontalLayout;
 import com.vaadin.ui.Label;
 import com.vaadin.ui.RadioButtonGroup;
+import com.vaadin.ui.TextArea;
 import com.vaadin.ui.TextField;
 import com.vaadin.ui.UI;
 import com.vaadin.ui.VerticalLayout;
@@ -40,12 +41,13 @@ public class MyUI extends UI
     RadioButtonGroup<String> grpMedicalAid;
     Label lblHeading;
     VerticalLayout display;
-    HorizontalLayout groupLayout;
+    HorizontalLayout groupLayout, medLayout;
 
     TextField txtAmount, txtMembers;
+    TextArea txtResults;
     Button btnCalculate;
 
-    int depandents = 0;
+    static int depandents;
 
     @Override
     protected void init(VaadinRequest vaadinRequest)
@@ -55,6 +57,7 @@ public class MyUI extends UI
         display = new VerticalLayout();
         // display.setSizeFull();
         groupLayout = new HorizontalLayout();
+        medLayout = new HorizontalLayout();
 
         //initialise  screen components
         grpTaxYear = new RadioButtonGroup("Select tax year");
@@ -71,16 +74,23 @@ public class MyUI extends UI
 
         txtAmount = new TextField("Taxable Earnings");
         txtMembers = new TextField("Number of depandents");
-        txtMembers.setEnabled(false);
-        btnCalculate = new Button("Results");
+        txtMembers.setValue(0 + "");
+        btnCalculate = new Button("Calculate");
+        txtResults = new TextArea("RESULTS");
+        // txtResults.setEnabled(false);
 
         display.addComponent(lblHeading);
         display.addComponent(txtAmount);
         groupLayout.addComponent(grpTaxYear);
         groupLayout.addComponent(grpTaxType);
         groupLayout.addComponent(grpAgeGroup);
+
+        medLayout.addComponent(grpMedicalAid);
+        medLayout.addComponent(txtResults);
         display.addComponent(groupLayout);
-        display.addComponent(grpMedicalAid);
+        //   display.addComponent(grpMedicalAid);
+        display.addComponent(medLayout);
+        // display.addComponent(txtResults);
         display.addComponent(txtMembers);
         display.addComponent(btnCalculate);
 
@@ -89,11 +99,14 @@ public class MyUI extends UI
         display.setComponentAlignment(txtMembers, Alignment.MIDDLE_CENTER);
         display.setComponentAlignment(btnCalculate, Alignment.MIDDLE_CENTER);
         display.setComponentAlignment(groupLayout, Alignment.MIDDLE_CENTER);
-        display.setComponentAlignment(grpMedicalAid, Alignment.MIDDLE_CENTER);
+        // display.setComponentAlignment(grpMedicalAid, Alignment.MIDDLE_CENTER);
+        display.setComponentAlignment(medLayout, Alignment.MIDDLE_RIGHT);
 
         btnCalculate.addClickListener(e ->
         {
+//getting the members value
 
+            depandents = Integer.parseInt(txtMembers.getValue());
             //enter earning amount 
             double earning = Double.parseDouble(txtAmount.getValue());
 
@@ -109,10 +122,9 @@ public class MyUI extends UI
             if (taxYear.equalsIgnoreCase("2017"))
             {
 
-                double monthlyPaye, annualPaye, taxCradit, payAfterTax, netCashAfterPayee;
-                
-                
-                
+                //medical aid price for 2017
+                double medicalPrice = TaxCalculator2017.medicalAid2017(grpMedicalAid.getSelectedItem().get(), depandents);
+                System.out.println(medicalPrice);
 
                 //get age group
                 int age = TaxCalculator2017.getAgeGroup(grpAgeGroup.getSelectedItem().get());
@@ -122,11 +134,43 @@ public class MyUI extends UI
 
                 //calculate payable tax monthly
                 double totalTax = TaxCalculator2017.taxPayable(rebate, totalEarnings);
-                txtMembers.setValue("" + totalTax);
+                // txtMembers.setValue("" + totalTax);
+
+                double monthlyPaye, annualPaye, taxCradit, payAfterTax, netCashAfterPayee;
+
+                taxCradit = totalTax;
+
+                if (grpTaxType.getSelectedItem().get().equalsIgnoreCase("Monthly"))
+                {
+                    monthlyPaye = earning;
+                    annualPaye = earning * 12;
+                    payAfterTax = earning - taxCradit;
+                    netCashAfterPayee = monthlyPaye - medicalPrice - totalTax;
+
+                } else
+                {
+                    monthlyPaye = earning / 12;
+                    annualPaye = earning;
+                    payAfterTax = earning - taxCradit;
+
+                    netCashAfterPayee = annualPaye - medicalPrice - (totalTax * 12);
+                }
+
+                String monthlyp, annullyP, taxCdit, payeDue, netcash;
+                monthlyp = "Monthly PAYE:" + monthlyPaye;
+                annullyP = "Annually PAYE:" + annualPaye;
+                taxCdit = "Tax Credit:" + taxCradit;
+                payeDue = "PAYE DUE AT:" + payAfterTax;
+                netcash = "Net Cash Pay" + netCashAfterPayee;
+
+                txtResults.setValue(monthlyp + "\n" + annullyP + "\n" + taxCdit + "\n" + payeDue + "\n" + netcash);
 
             } else if (taxYear.equalsIgnoreCase("2018"))
             {
 
+                //medical aid price for 2018
+                double medicalPrice = TaxCalculator2018.medicalAid2018(grpMedicalAid.getSelectedItem().get(), depandents);
+                System.out.println(medicalPrice + "2018");
                 //get age group
                 int age = TaxCalculator2018.getAgeGroup(grpAgeGroup.getSelectedItem().get());
 
@@ -135,7 +179,32 @@ public class MyUI extends UI
 
                 //calculate payable tax monthly
                 double totalTax = TaxCalculator2018.taxPayable(rebate, totalEarnings);
-                txtMembers.setValue("" + totalTax);
+
+                double monthlyPaye, annualPaye, taxCradit, payAfterTax, netCashAfterPayee;
+                taxCradit = totalTax;
+                if (grpTaxType.getSelectedItem().get().equalsIgnoreCase("Monthly"))
+                {
+                    monthlyPaye = earning;
+                    annualPaye = earning * 12;
+                    payAfterTax = earning - taxCradit;
+                    netCashAfterPayee = payAfterTax - medicalPrice;
+
+                } else
+                {
+                    monthlyPaye = earning / 12;
+                    annualPaye = earning;
+                    payAfterTax = earning - taxCradit;
+                    netCashAfterPayee = payAfterTax - medicalPrice;
+                }
+
+                String monthlyp, annullyP, taxCdit, payeDue, netcash;
+                monthlyp = "Monthly PAYE:" + monthlyPaye;
+                annullyP = "Annually PAYE:" + annualPaye;
+                taxCdit = "Tax Credit:" + taxCradit;
+                payeDue = "PAYE DUE:" + payAfterTax;
+                netcash = "Net Cash Pay" + netCashAfterPayee;
+
+                txtResults.setValue(monthlyp + "\n" + annullyP + "\n" + taxCdit + "\n" + payeDue + "\n" + netcash);
 
             }
         });
@@ -152,21 +221,30 @@ public class MyUI extends UI
 
     }
 
-//    public static String getMadicalDetails(String medTtype)
+//    public static double medicalAidPrice2017(String typeM)
 //    {
-//
-//        String med = "";
-//
-//        if (medTtype.equalsIgnoreCase("main"))
+//        double aidPrice = 0;
+//        if (typeM.equalsIgnoreCase("main"))
 //        {
-//            med = "main";
-//
-//        } else if (medTtype.equalsIgnoreCase("Main + dependents"))
+//            
+//            aidPrice = 286;
+//        } else if (typeM.equalsIgnoreCase("Main + dependents"))
 //        {
-//            med = "Main + dependents";
-//
+//            aidPrice = 286 + (depandents * 192);
 //        }
-//
-//        return med;
+//        return aidPrice;
+//    }
+//    public static double medicalAidPrice2018(String typeM)
+//    {
+//        double aidPrice = 0;
+//        if (typeM.equalsIgnoreCase("main"))
+//        {
+//            
+//            aidPrice = 303;
+//        } else if (typeM.equalsIgnoreCase("Main + dependents"))
+//        {
+//            aidPrice = 303 + (depandents * 204);
+//        }
+//        return aidPrice;
 //    }
 }

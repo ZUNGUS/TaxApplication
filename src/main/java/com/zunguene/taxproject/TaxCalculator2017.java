@@ -147,7 +147,7 @@ public class TaxCalculator2017
     public static double medicalAid2017(String checkMedicalAid, int numberOfMembers)
     {
         double amount = 0;
-        double extraPersonPrice;
+      
         
         if (checkMedicalAid.equalsIgnoreCase("main"))
         
