@@ -11,17 +11,22 @@ package com.zunguene.taxproject;
  */
 public class Tester
 {
+
     public static void main(String[] args)
     {
-        int age = 2;
+     
         String salaryType = "a";
         double earning = 360000;
+        
 
-        // double rebate = calculateRebateTax(age);
-        double rebate = TaxCalculator2018.calculateRebateTax(age);
-        //  double totalEarning = calculateTotalEarnings(salaryType, earning);
-        double totalEarning = TaxCalculator2018.calculateTotalEarnings(salaryType, earning);
-        double totalTax = TaxCalculator2018.taxPayable(rebate, earning);
-        System.out.println(totalTax);
+        double rebate = TaxCalculator2017.calculateRebateTax(2);
+        double totalEarning = TaxCalculator2017.calculateTotalEarnings(salaryType, earning);
+        double totalTax = TaxCalculator2017.taxPayable(rebate, earning);
+        System.out.println(totalTax +"rebate  secondary");
+        
+        double rebate1 = TaxCalculator2017.calculateRebateTax(3);
+        double totalEarning1 = TaxCalculator2017.calculateTotalEarnings(salaryType, earning);
+        double totalTax1 = TaxCalculator2017.taxPayable(rebate, earning);
+        System.out.println(totalTax1 +"rebate  tertiary");
     }
 }

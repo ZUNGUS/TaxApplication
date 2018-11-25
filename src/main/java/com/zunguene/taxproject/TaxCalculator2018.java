@@ -168,14 +168,14 @@ public class TaxCalculator2018
         double amount = 0;
         double extraPersonPrice;
         
-        if (checkMedicalAid.equalsIgnoreCase("main"))
+        if (checkMedicalAid.equalsIgnoreCase("Main Member"))
         
         {
             amount = 303;
         } else if (checkMedicalAid.equalsIgnoreCase("Main + dependents"))
         
         {
-            amount=303+(204*numberOfMembers);
+            amount=303 + (204*numberOfMembers);
         }
         
         return amount;
